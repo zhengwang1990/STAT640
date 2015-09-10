@@ -35,7 +35,7 @@ rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 100
 %% output array
 if (output)
     outSz = size(idmap,1);
-    segment = 1:100;
+    segment = 1e+5-1:1e+5+10;
     predInd = idmap(segment,:);
 else
     predInd = [ratings(testInd,1) ratings(testInd,2)];
@@ -67,7 +67,13 @@ if (output)
     fileId = fopen(filename,'w');
     fprintf(fileId,'ID,Prediction\n');
     for i = 1:Npred
-        fprintf(fileId,'%d,%.15f\n',predInd(i,3),pFinal(i));
+        kaggleInd = predInd(i,3);
+        % submission request
+        if (mod(kaggleInd,1e+5)==0)
+            fprintf(fileId,'%de+05,%.15f\n',kaggleInd/1e+5,pFinal(i));
+        else
+            fprintf(fileId,'%d,%.15f\n',kaggleInd,pFinal(i));
+        end
     end
     fclose(fileId);
     fprintf('Output written in %s\n',filename);
