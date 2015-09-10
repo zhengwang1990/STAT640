@@ -7,7 +7,7 @@ global Npred;
 Nuser = size(rmat, 1);
 [IA, JA, AA]=sparse_to_csr(rmat); % CSR storage for fast computation
 
-parfor i = 1:Npred
+for i = 1:Npred
     list = [];
     % target user and profile
     user = predInd(i,1);
@@ -16,16 +16,21 @@ parfor i = 1:Npred
     for userj = 1:Nuser        
         if (rmat(userj,profile)~=0)
             N = 0; % number of same rate
-            dist = 0; %
-            for iu = IA(user):IA(user+1)-1
-                for iuj = IA(userj):IA(userj+1)-1
-                    if (JA(iu)==JA(iuj))
-                        N = N + 1;
-                        dist = dist + abs(AA(iu) - AA(iuj));
-                        break;
-                    end
-                end
-            end
+            dist = 0; % distance            
+            iu  = IA(user);
+            iuj = IA(userj);
+            while ((iu < IA(user+1))&&(iuj < IA(userj+1)))
+                if (JA(iu)==JA(iuj))
+                    N = N + 1;
+                    dist = dist + abs(AA(iu) - AA(iuj));
+                    iu = iu + 1;
+                    iuj = iuj + 1;
+                elseif (JA(iu)<JA(iuj))
+                        iu = iu + 1;
+                else
+                    iuj = iuj + 1;
+                end                                        
+            end               
             if (N==0)
                 continue;
             else

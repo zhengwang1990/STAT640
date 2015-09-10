@@ -9,7 +9,7 @@ global predInd;
 %% output
 % output = true for submission
 % output = false for training and test
-output = false;
+output = true;
 
 %% read data
 if (isempty(ratings))
@@ -34,7 +34,9 @@ rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 100
 
 %% output array
 if (output)
-    predInd = idmap(:,1:2);
+    outSz = size(idmap,1);
+    segment = 1:100;
+    predInd = idmap(segment,:);
 else
     predInd = [ratings(testInd,1) ratings(testInd,2)];
     pExac = ratings(testInd,3);
@@ -65,9 +67,10 @@ if (output)
     fileId = fopen(filename,'w');
     fprintf(fileId,'ID,Prediction\n');
     for i = 1:Npred
-        fprintf(fileId,'%d,%.15f\n',i,pFinal(i));
+        fprintf(fileId,'%d,%.15f\n',predInd(i,3),pFinal(i));
     end
     fclose(fileId);
+    fprintf('Output written in %s\n',filename);
 else
     errTot = norm(pFinal-pExac);
     errBmk = norm(pMean-pExac);
