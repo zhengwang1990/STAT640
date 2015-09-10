@@ -9,7 +9,7 @@ global predInd;
 %% output
 % output = true for submission
 % output = false for training and test
-output = true;
+output = false;
 
 %% read data
 if (isempty(ratings))
@@ -28,7 +28,7 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 10:100000:size(ratings,1);
+    testInd = 23:100000:size(ratings,1);
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
@@ -43,12 +43,18 @@ Npred = size(predInd,1);
 
 
 %% benchmark -- take mean
+disp('TFBoys: Prepare BenchMark Solution');
+tic();
 pMean = benchmark();
 wMean = 0.3;
+toc();
 
 %% knn
+disp('TFBoys: Prepare KNN Solution');
+tic();
 pKNN = knn(40);
 wKNN = 0.7;
+toc();
 
 %% weighted sum
 pFinal = wMean*pMean + wKNN*pKNN;
@@ -65,6 +71,7 @@ if (output)
 else
     errTot = norm(pFinal-pExac);
     errBmk = norm(pMean-pExac);
+    fprintf('Num of Tests  = %d\n', Npred);
     fprintf('Error Total   = %9.5f   Error Per Entry = %f\n', errTot, errTot/Npred);
     fprintf('Bmk Err Total = %9.5f   Error Per Entry = %f\n', errBmk, errBmk/Npred);
 end

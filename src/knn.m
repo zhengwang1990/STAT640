@@ -7,7 +7,7 @@ global Npred;
 Nuser = size(rmat, 1);
 [IA, JA, AA]=sparse_to_csr(rmat); % CSR storage for fast computation
 
-for i = 1:Npred
+parfor i = 1:Npred
     list = [];
     % target user and profile
     user = predInd(i,1);
