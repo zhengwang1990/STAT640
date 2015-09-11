@@ -19,6 +19,7 @@ for i = 1:Npred
             dist = 0; % distance            
             iu  = IA(user);
             iuj = IA(userj);
+            % check for mutual rating
             while ((iu < IA(user+1))&&(iuj < IA(userj+1)))
                 if (JA(iu)==JA(iuj))
                     N = N + 1;
@@ -26,16 +27,16 @@ for i = 1:Npred
                     iu = iu + 1;
                     iuj = iuj + 1;
                 elseif (JA(iu)<JA(iuj))
-                        iu = iu + 1;
+                    iu = iu + 1;
                 else
                     iuj = iuj + 1;
                 end                                        
             end               
             if (N==0)
-                continue;
+                continue; % no mutual rating
             else
                 dist = dist/N;
-                score = dist + 2*exp(-N^2/30); %average distance + penallty of small
+                score = dist + 2*exp(-N^2/30); % average distance + penallty of small N
                 list = [list; [score userj]];
             end
         end
@@ -43,7 +44,7 @@ for i = 1:Npred
     [X,I] = sort(list(:,1),'ascend');
     k = min(K,size(list,1));
     s = full(rmat(list(I(1:k),2),profile));
-    w = 1./(X(1:k).^2+0.5);
+    w = 1./(X(1:k).^2+0.5); % weight
     wsum = sum(w);
     w = w/wsum;
     u(i) = s'*w;

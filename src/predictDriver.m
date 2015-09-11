@@ -9,7 +9,7 @@ global predInd;
 %% output
 % output = true for submission
 % output = false for training and test
-output = true;
+output = false;
 
 %% read data
 if (isempty(ratings))
@@ -28,14 +28,14 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 23:100000:size(ratings,1);
+    testInd = 34:300000:size(ratings,1);
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
 %% output array
 if (output)
     outSz = size(idmap,1);
-    segment = 1e+5-1:1e+5+10;
+    segment = 1:outSz;
     predInd = idmap(segment,:);
 else
     predInd = [ratings(testInd,1) ratings(testInd,2)];
@@ -67,13 +67,7 @@ if (output)
     fileId = fopen(filename,'w');
     fprintf(fileId,'ID,Prediction\n');
     for i = 1:Npred
-        kaggleInd = predInd(i,3);
-        % submission request
-        if (mod(kaggleInd,1e+5)==0)
-            fprintf(fileId,'%de+05,%.15f\n',kaggleInd/1e+5,pFinal(i));
-        else
-            fprintf(fileId,'%d,%.15f\n',kaggleInd,pFinal(i));
-        end
+        fprintf(fileId,'%d,%.15f\n',predInd(i,3),pFinal(i));
     end
     fclose(fileId);
     fprintf('Output written in %s\n',filename);
