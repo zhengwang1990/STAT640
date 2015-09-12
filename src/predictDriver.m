@@ -22,13 +22,12 @@ if (isempty(genders))
     genders = csvread('../data/gender.csv',1,0);
 end
 
-
 %% divide into training and test
 if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 34:300000:size(ratings,1);
+    testInd = 248:5000:size(ratings,1);
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
@@ -48,18 +47,16 @@ Npred = size(predInd,1);
 disp('TFBoys: Prepare BenchMark Solution');
 tic();
 pMean = benchmark();
-wMean = 0.3;
 toc();
 
 %% knn
 disp('TFBoys: Prepare KNN Solution');
 tic();
 pKNN = knn(40);
-wKNN = 0.7;
 toc();
 
 %% weighted sum
-pFinal = wMean*pMean + wKNN*pKNN;
+pFinal = weightedSum(pMean, pKNN);
 
 %% output
 if (output)    
