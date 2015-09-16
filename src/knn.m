@@ -8,8 +8,6 @@ global Npred;
 [IAtr, JAtr, AAtr] = sparse_to_csr(rmat'); 
 maxN = 10000;
 list = zeros(maxN, 2);
-varVec = zeros(1000);
-tk = 1;
 sk = 1;
 for i = 1:Npred    
     % target user and profile
@@ -24,16 +22,12 @@ for i = 1:Npred
         dist = 0; % distance
         iu  = IA(user);
         iuj = IA(userj);
-        varVec(1:tk-1) = 0;
-        tk = 1;
         % check for mutual rating
         while ((iu < IA(user+1))&&(iuj < IA(userj+1)))
             if (JA(iu)==JA(iuj))
                 N = N + 1;
                 diff = abs(AA(iu) - AA(iuj));
                 dist = dist + diff;
-                varVec(tk) = diff;
-                tk = tk + 1;
                 iu = iu + 1;
                 iuj = iuj + 1;
             elseif (JA(iu)<JA(iuj))
@@ -46,8 +40,7 @@ for i = 1:Npred
             continue; % no mutual rating
         else
             dist = dist/N;
-            varVal = var(varVec(1:tk-1));
-            score = dist + 2*exp(-N^2/30) + 50*(varVal)^2; % average distance + penallty of small N + penaly of large var
+            score = dist + 2*exp(-N^2/30); % average distance + penallty of small N
             list(sk,:) = [score userj];
             sk = sk + 1;
         end
@@ -55,7 +48,7 @@ for i = 1:Npred
     [X,I] = sort(list(1:sk-1,1),'ascend');
     k = min(K,size(I,1));
     s = full(rmat(list(I(1:k),2),profile));
-    w = 1./(X(1:k).^2+1); % weight
+    w = 1./(X(1:k).^2+5); % weight
     wsum = sum(w);
     w = w/wsum;
     u(i) = s'*w;

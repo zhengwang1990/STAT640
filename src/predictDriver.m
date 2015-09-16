@@ -27,7 +27,7 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 309:50000:size(ratings,1);
+    testInd = 800:50000:size(ratings,1);    
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
