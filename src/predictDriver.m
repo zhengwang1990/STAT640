@@ -27,14 +27,14 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 248:5000:size(ratings,1);
+    testInd = 709:50000:size(ratings,1);
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
 %% output array
 if (output)
     outSz = size(idmap,1);
-    segment = 1:outSz;
+    segment = 1:100;%outSz;
     predInd = idmap(segment,:);
 else
     predInd = [ratings(testInd,1) ratings(testInd,2)];

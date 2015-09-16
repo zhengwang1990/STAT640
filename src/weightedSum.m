@@ -19,8 +19,8 @@ end
 pFinal = zeros(Npred,1);
 for ip = 1:Npred
     variance = var(predInd(ip,2));
-    alpha = 0.5*variance/10;
-    pFinal(ip) = min(max((0.5-alpha)*pMean(ip) + (0.5+alpha)*pKNN(ip),1),10);
+    alpha = variance/20;
+    pFinal(ip) = min(max((0-alpha)*pMean(ip) + (1+alpha)*pKNN(ip),1),10);
 end
 
 end
