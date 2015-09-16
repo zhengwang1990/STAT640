@@ -6,9 +6,9 @@ global Npred;
 
 [IA, JA, AA]       = sparse_to_csr(rmat); % CSR storage for fast computation
 [IAtr, JAtr, AAtr] = sparse_to_csr(rmat'); 
-maxN = 100000;
+maxN = 10000;
 list = zeros(maxN, 2);
-varVec = zeros(10000);
+varVec = zeros(1000);
 tk = 1;
 sk = 1;
 for i = 1:Npred    
@@ -47,7 +47,7 @@ for i = 1:Npred
         else
             dist = dist/N;
             varVal = var(varVec(1:tk-1));
-            score = dist + 2*exp(-N^2/30) + 50*(varVal)^2; % average distance + penallty of small N
+            score = dist + 2*exp(-N^2/30) + 50*(varVal)^2; % average distance + penallty of small N + penaly of large var
             list(sk,:) = [score userj];
             sk = sk + 1;
         end
@@ -55,7 +55,7 @@ for i = 1:Npred
     [X,I] = sort(list(1:sk-1,1),'ascend');
     k = min(K,size(I,1));
     s = full(rmat(list(I(1:k),2),profile));
-    w = 1./(X(1:k).^2+5); % weight
+    w = 1./(X(1:k).^2+1); % weight
     wsum = sum(w);
     w = w/wsum;
     u(i) = s'*w;
