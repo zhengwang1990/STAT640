@@ -27,7 +27,7 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 800:50000:size(ratings,1);    
+    testInd = 5220:5000:size(ratings,1);    
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
@@ -51,12 +51,17 @@ toc();
 
 %% knn
 disp('TFBoys: Prepare KNN Solution');
+disp('1) KNN User');
 tic();
-pKNN = knn(40);
+[pKNNUser, KNNUserVar] = knnUser(25);
+toc();
+disp('2) KNN Profile');
+tic();
+[pKNNProfile, KNNProfileVar] = knnProfile(15);
 toc();
 
 %% weighted sum
-pFinal = weightedSum(pMean, pKNN);
+pFinal = weightedSum(pMean, pKNNUser, KNNUserVar, pKNNProfile, KNNProfileVar);
 
 %% output
 if (output)    
@@ -69,9 +74,13 @@ if (output)
     fclose(fileId);
     fprintf('Output written in %s\n',filename);
 else
-    errTot = norm(pFinal-pExac);
+    errFin = norm(pFinal-pExac);
     errBmk = norm(pMean-pExac);
-    fprintf('Num of Tests  = %d\n', Npred);
-    fprintf('Error Total   = %9.5f   Error Per Entry = %f\n', errTot, errTot/Npred);
-    fprintf('Bmk Err Total = %9.5f   Error Per Entry = %f\n', errBmk, errBmk/Npred);
+    errUsr = norm(pKNNUser-pExac);
+    errPro = norm(pKNNProfile-pExac);   
+    fprintf('Num of Tests  = %d\n', Npred);    
+    fprintf('knnU  Err Total = %9.5f   Error Per Entry = %f\n', errUsr, errUsr/Npred);
+    fprintf('knnP  Err Total = %9.5f   Error Per Entry = %f\n', errPro, errPro/Npred);
+    fprintf('Final Err Total = %9.5f   Error Per Entry = %f\n', errFin, errFin/Npred);
+    fprintf('Bmk   Err Total = %9.5f   Error Per Entry = %f\n', errBmk, errBmk/Npred);
 end
