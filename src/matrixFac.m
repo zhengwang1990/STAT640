@@ -30,7 +30,9 @@ gradQ = zeros(k,Nprofile);
 lambda = 0.05;
 
 %% verbose
-fprintf('Running Matrix Decompostion.\nNumber of Features = %d\n', k);
+fprintf('Running Matrix Decompostion.\n');
+fprintf('Number of Features = %d\n', k);
+fprintf('Number of Training Data = %d\n', Nrate);
 
 %% initial loss function value
 object = 0;
@@ -43,9 +45,9 @@ end
 fprintf('iter = 0, loss function = %f\n', object);
 
 %% Steepest Decent Iteration
-MaxIter = 2;
+MaxIter = 10000;
 gradTol = 1.0;
-for iter = 1:MaxIter    
+for iter = 1:MaxIter
     gradP(:,:) = 0;
     gradQ(:,:) = 0;
     % gradient from loss function
