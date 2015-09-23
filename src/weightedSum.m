@@ -1,4 +1,5 @@
-function pFinal = weightedSum(pMean, pKNNUser, KNNUserVar, pKNNProfile, KNNProfileVar)
+function [pFinal] = weightedSum(pMean, pKNNUser, KNNUserVar, ...
+    pKNNProfile, KNNProfileVar, pSVD)
 global rmat;
 global predInd;
 global Npred;
@@ -22,22 +23,29 @@ for ip = 1:Npred
     % if knn variance is small    
     if ((KNNUserVar(ip) < varTol)||(KNNProfileVar(ip) < varTol))
         if (KNNUserVar(ip) <= KNNProfileVar(ip))
-            pFinal(ip) = pKNNUser(ip);            
+            pFinal(ip) = pKNNUser(ip);
         else
             pFinal(ip) = pKNNProfile(ip);
-        end
+        end        
+        continue;
+    end
+    if ((KNNUserVar(ip) > 15)&&(KNNProfileVar(ip) > 15))
+        pFinal(ip) = pSVD(ip);
         continue;
     end
     % take weighted sum
     wKNNUser = exp(-KNNUserVar(ip)^2/200);
-    wKNNProfile = exp(-KNNProfileVar(ip)^2/200);
-    wSum = wKNNUser + wKNNProfile;
+    wKNNProfile = exp(-KNNProfileVar(ip)^2/100);
+    wSVD = exp(-3);
+    wSum = wKNNUser + wKNNProfile + wSVD;
     wKNNUser = wKNNUser/wSum;
     wKNNProfile = wKNNProfile/wSum;
-    %[wKNNUser wKNNProfile KNNUserVar(ip) KNNProfileVar(ip)]
+    wSVD = wSVD/wSum;
     variance = var(predInd(ip,2));
     alpha = variance/30;
-    pFinal(ip) = min(max((0-alpha)*pMean(ip) + (1+alpha)*(wKNNUser*pKNNUser(ip) + wKNNProfile*pKNNProfile(ip)),1),10);
+    pFinal(ip) = min(max((0-alpha)*pMean(ip) + ...
+        (1+alpha)*(wKNNUser*pKNNUser(ip) + wKNNProfile*pKNNProfile(ip) + ...
+        wSVD*pSVD(ip)),1),10);
 end
 
 end

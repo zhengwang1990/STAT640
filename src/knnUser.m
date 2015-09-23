@@ -56,4 +56,5 @@ for i = 1:Npred
     w = w/wsum;
     u(i) = s'*w;
 end
+
 end

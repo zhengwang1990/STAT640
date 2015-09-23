@@ -5,6 +5,7 @@ global idmap;
 global genders;
 global Npred;
 global predInd;
+global trainInd;
 
 %% output
 % output = true for submission
@@ -27,7 +28,7 @@ if (output)
     trainInd = 1:size(ratings,1);
 else
     trainInd = 1:2:size(ratings,1);
-    testInd = 1520:5000:size(ratings,1);    
+    testInd = 14250:50000:size(ratings,1);    
 end
 rmat = sparse(ratings(trainInd,1), ratings(trainInd,2), ratings(trainInd,3), 10000, 10000);
 
@@ -53,15 +54,45 @@ toc();
 disp('TFBoys: Prepare KNN Solution');
 disp('1) KNN User');
 tic();
-[pKNNUser, KNNUserVar] = knnUser(25);
+if (output)
+    knnUserInfo = '../data/knnUserInfo.mat';
+    if (exist(knnUserInfo, 'file'))
+        load(knnUserInfo);
+    else
+        [pKNNUser, KNNUserVar] = knnUser(25);
+        save(knnUserInfo, 'pKNNUser', 'KNNUserVar');
+    end
+else
+    [pKNNUser, KNNUserVar] = knnUser(25);
+end
 toc();
 disp('2) KNN Profile');
 tic();
-[pKNNProfile, KNNProfileVar] = knnProfile(15);
+if (output)
+    knnProfileInfo = '../data/knnProfileInfo.mat';
+    if (exist(knnProfileInfo, 'file'))
+        load(knnProfileInfo)
+    else
+        [pKNNProfile, KNNProfileVar] = knnProfile(15);
+        save(knnProfileInfo, 'pKNNProfile', 'KNNProfileVar');
+    end
+else
+    [pKNNProfile, KNNProfileVar] = knnProfile(15);
+end
 toc();
 
+%% svd
+if (output)
+    svdInfo = '/Users/zw14/Documents/svdInfo.mat';
+else
+    svdInfo = '/Users/zw14/Documents/svdInfoTest.mat';
+end
+[pSVD] = svdFac(svdInfo, 100);
+
+
 %% weighted sum
-pFinal = weightedSum(pMean, pKNNUser, KNNUserVar, pKNNProfile, KNNProfileVar);
+[pFinal] = weightedSum(pMean, pKNNUser, KNNUserVar, ...
+    pKNNProfile, KNNProfileVar, pSVD);
 
 %% output
 if (output)    
@@ -74,13 +105,16 @@ if (output)
     fclose(fileId);
     fprintf('Output written in %s\n',filename);
 else
-    errFin = norm(pFinal-pExac);
-    errBmk = norm(pMean-pExac);
-    errUsr = norm(pKNNUser-pExac);
-    errPro = norm(pKNNProfile-pExac);   
+    errFin = norm(pFinal-pExac)^2;
+    errBmk = norm(pMean-pExac)^2;
+    errUsr = norm(pKNNUser-pExac)^2;
+    errPro = norm(pKNNProfile-pExac)^2;
+    errKnn = norm(pKNN-pExac)^2;
+    errSVD = norm(pSVD-pExac)^2;      
     fprintf('Num of Tests  = %d\n', Npred);    
     fprintf('knnU  Err Total = %9.5f   Error Per Entry = %f\n', errUsr, errUsr/Npred);
     fprintf('knnP  Err Total = %9.5f   Error Per Entry = %f\n', errPro, errPro/Npred);
+    fprintf('SVD   Err Total = %9.5f   Error Per Entry = %f\n', errSVD, errSVD/Npred);
     fprintf('Final Err Total = %9.5f   Error Per Entry = %f\n', errFin, errFin/Npred);
     fprintf('Bmk   Err Total = %9.5f   Error Per Entry = %f\n', errBmk, errBmk/Npred);
 end

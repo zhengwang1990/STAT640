@@ -1,4 +1,5 @@
 function [u, varFlag] = knnProfile(K)
+
 global rmat;
 global predInd;
 global Npred;
