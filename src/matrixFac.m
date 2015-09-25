@@ -3,12 +3,16 @@ function [u, trnErr] = matrixFac(userData, profileData)
 global rmat;
 global predInd;
 global Npred;
+global P;
+global Q;
 
-useMean = true;
+useMean = false;
 
 if (exist(userData, 'file')&&exist(profileData, 'file'))
-    load(userData);
-    load(profileData);
+    if (isempty(P)||isempty(Q))
+        load(userData);
+        load(profileData);
+    end
 else
     msg = 'Error, Data files not found! Run MatrixFacStartup to generate data!\n';
     error(msg);

@@ -24,6 +24,10 @@ for i = 1:Npred
         dist = 0; % distance
         ip  = IA(profile);
         ipj = IA(profilej);
+        % for true trainning issue
+        if (profile==profilej)
+            continue;
+        end
         % check for mutual rating
         while ((ip < IA(profile+1))&&(ipj < IA(profilej+1)))
             if (JA(ip)==JA(ipj))
@@ -51,8 +55,9 @@ for i = 1:Npred
     k = min(K,size(I,1));
     s = full(rmat(user,list(I(1:k),2)))';
     w = 1./(X(1:k).^2+0.5); % weight
-    varFlag(i) = var(s);
     wsum = sum(w);
+    %w = list(I(1:k),3);
+    varFlag(i) = var(s);    
     w = w/wsum;
     u(i) = s'*w;
 end
